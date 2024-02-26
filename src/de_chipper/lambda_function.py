@@ -6,13 +6,13 @@ def lambda_handler(event, context):
     s3 = boto3.client("s3")
     outbucket = os.environ['OUTPUT_BUCKET']
     
-    #this assumes the batch size is 1
+    # This assumes the batch size is 1
     record = json.loads(event['Records'][0]['body'])
     
     x_offset = record['chip_info']['orig_x']
     y_offset = record['chip_info']['orig_y']
     
-    #get window size 
+    # Get window size 
     x_window = record['chip_info']['x_window']
     y_window = record['chip_info']['y_window']
     
@@ -20,9 +20,7 @@ def lambda_handler(event, context):
     
     out_file_name = os.path.splitext(chipname)[0]+'.json'
     
-    #project chip coords back to original image coords
-    # this converts to pixel coordinates instead of pct dimensions
-    #this will replace the coordinates
+    # Project chip coords back to original image coords
     for label in record['Labels']:
         for instance in label['Instances']:
             bbox = instance['BoundingBox']
@@ -43,9 +41,8 @@ def lambda_handler(event, context):
             bbox['Top'] = top
             
     
-    #write to s3
-    s3.put_object(Body=json.dumps(record), Bucket=outbucket,Key=out_file_name )
-            
+    # Write to S3
+    s3.put_object(Body=json.dumps(record), Bucket=outbucket,Key=out_file_name )  
         
     return event
 
